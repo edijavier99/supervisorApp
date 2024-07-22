@@ -8,8 +8,8 @@ const Tab = createBottomTabNavigator()
 export const TabNavigator = () =>{
     return(
         <Tab.Navigator>
-            <Tab.Screen name="Team" component={Team} />
             <Tab.Screen name="Profile" component={Profile} />
+            <Tab.Screen name="Team" component={Team} />
         </Tab.Navigator>
     )
 }
