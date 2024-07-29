@@ -6,10 +6,6 @@ import { TeamCard } from "./teamCard";
 export const Team = () => {
   const [search, setSearch] = useState("");
 
-  const updateSearch = (search) => {
-    setSearch(search);
-  };
-
   const dummyEmployees = [
     {
       firstName: 'Juan',
@@ -43,8 +39,23 @@ export const Team = () => {
     }
   ];
 
-  const showDummyEmployees = () => {
-    return dummyEmployees.map((employee, index) => {
+  const [filteredEmployees, setFilteredEmployees] = useState(dummyEmployees);
+
+  const updateSearch = (search) => {
+    setSearch(search);
+    if (search === "") {
+      setFilteredEmployees(dummyEmployees);
+    } else {
+      setFilteredEmployees(
+        dummyEmployees.filter(employee =>
+          `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(search.toLowerCase())
+        )
+      );
+    }
+  };
+
+  const showFilteredEmployees = () => {
+    return filteredEmployees.map((employee, index) => {
       return (
         <TeamCard employee={employee} key={index} />
       );
@@ -61,10 +72,9 @@ export const Team = () => {
         inputContainerStyle={styles.searchBarInputContainer}
         lightTheme
       />
-      <Text style={styles.searchText}>{search}</Text>
       <Text style={styles.title}>Mi Equipo</Text>
       <View>
-        {showDummyEmployees()}
+        {showFilteredEmployees()}
       </View>
     </View>
   );
@@ -73,25 +83,23 @@ export const Team = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 15,
     backgroundColor: "#fff",
   },
   searchBarContainer: {
     backgroundColor: 'transparent',
     borderTopWidth: 0,
     borderBottomWidth: 0,
+    padding: 0,
   },
   searchBarInputContainer: {
     backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-  },
-  searchText: {
-    marginTop: 10,
-    fontSize: 18,
+    borderRadius: 5,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     marginTop: 20,
+    marginBottom: 20
   },
 });
