@@ -5,7 +5,7 @@ import { Team } from "../components/team";
 import { Building } from "../components/building";
 import { Shifts } from "../components/shifts";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { AddEmployeeScreen } from "../screens/addEmployeeScreen";
 
 const Tab = createBottomTabNavigator()
 
@@ -38,6 +38,7 @@ export const TabNavigator = () =>{
             <Tab.Screen name="Team" component={Team} />
             <Tab.Screen name="Building" component={Building}/>
             <Tab.Screen name="Shifts" component={Shifts} />
+            <Tab.Screen name="AddEmployee" component={AddEmployeeScreen}/>
         </Tab.Navigator>
     )
 }

@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { SearchBar } from 'react-native-elements';
+import { Icon } from 'react-native-elements'
 import { TeamCard } from "./teamCard";
+import { useNavigation } from '@react-navigation/native';
 
 export const Team = () => {
   const [search, setSearch] = useState("");
+  const [isIconPressed, setIsIconPressed] = useState(false);
+  const navigation = useNavigation(); // Hook para acceder a la navegación
+
 
   const dummyEmployees = [
     {
@@ -72,7 +77,19 @@ export const Team = () => {
         inputContainerStyle={styles.searchBarInputContainer}
         lightTheme
       />
-      <Text style={styles.title}>Mi Equipo</Text>
+      <View style={styles.addContainer}>
+        <Text style={styles.title}>Mi Equipo</Text>
+        <Icon
+        name="plus"
+        onPress={() => {
+          setIsIconPressed(!isIconPressed);
+          navigation.navigate('AddEmployee'); // Navegar a la pantalla 'AnotherScreen'
+        }}        type="font-awesome" // O el tipo de icono que prefieras
+        size={30}
+        color={isIconPressed ? '#ff0000' : '#000000'}
+        style={styles.plusIcon}
+      />
+      </View>
       <View>
         {showFilteredEmployees()}
       </View>
@@ -99,7 +116,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 20
+  },
+  addContainer:{
+    flexDirection: "row",
+    height: 80,
+    alignItems: "center",
+    justifyContent: "space-between"
   },
 });
