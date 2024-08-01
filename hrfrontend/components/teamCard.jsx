@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { StyleSheet, Modal, View, Text, TouchableOpacity, Alert } from "react-native";
 import { ListItem, Icon, Avatar } from 'react-native-elements';
 import { Linking } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 
 export const TeamCard = ({ employee }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation()
 
   const handleCall = (phoneNumber) => {
     let formattedNumber = phoneNumber.replace(/\s+/g, ''); // Eliminar espacios
@@ -65,6 +67,7 @@ export const TeamCard = ({ employee }) => {
               }}>
               <Text style={styles.textStyle}>Horas de {employee.firstName}</Text>
             </TouchableOpacity>
+            
             <TouchableOpacity
               style={[styles.button, styles.buttonRedirect]}
               onPress={() => {
@@ -73,6 +76,16 @@ export const TeamCard = ({ employee }) => {
               }}>
               <Text style={styles.textStyle}>Llamar</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.button, styles.buttonRedirectFalta ]}
+              onPress={() => {
+                setModalVisible(!modalVisible);
+                navigation.navigate("CoverEmployee")
+              }}>
+              <Text style={styles.textStyle}>Marcar Falta</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => setModalVisible(!modalVisible)}>
@@ -140,6 +153,9 @@ const styles = StyleSheet.create({
   },
   buttonRedirect: {
     backgroundColor: '#2196F3',
+  },
+  buttonRedirectFalta:{
+    backgroundColor: "red"
   },
   buttonClose: {
     backgroundColor: 'grey',

@@ -25,7 +25,7 @@ export const LoginForm = ({navigation}) => {
             />
             <Button title="Iniciar sesión" onPress={handleLogin} />
             <Button title ="Ir al perfile" onPress={()=>{
-                navigation.navigate('ProfileScreen' )
+                navigation.navigate('Profile' )
             }} />
         </View>
     );

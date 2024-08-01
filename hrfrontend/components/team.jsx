@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/native';
 
 export const Team = () => {
   const [search, setSearch] = useState("");
-  const [isIconPressed, setIsIconPressed] = useState(false);
   const navigation = useNavigation(); // Hook para acceder a la navegación
 
 
@@ -82,11 +81,10 @@ export const Team = () => {
         <Icon
         name="plus"
         onPress={() => {
-          setIsIconPressed(!isIconPressed);
           navigation.navigate('AddEmployee'); // Navegar a la pantalla 'AnotherScreen'
         }}        type="font-awesome" // O el tipo de icono que prefieras
         size={30}
-        color={isIconPressed ? '#ff0000' : '#000000'}
+        color="green"
         style={styles.plusIcon}
       />
       </View>

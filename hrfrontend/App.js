@@ -4,7 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { enableScreens } from 'react-native-screens';
 import { LoginScreen } from './screens/loginScreen';
-import { ProfileScreen } from './screens/profileScreen';
+import { AddEmployeeScreen } from './screens/addEmployeeScreen';
+import { TabNavigator } from './navigation/navigation';
+import { CoverScreen } from './screens/coverScreen';
 
 enableScreens();
 
@@ -14,15 +16,25 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen 
+      <Stack.Screen 
           name="LoginScreen" 
           component={LoginScreen} 
           options={{ title: "Login" }} 
         />
         <Stack.Screen 
-          name="ProfileScreen" 
-          component={ProfileScreen} 
-          options={{ title: "Profile" }} 
+          name="Profile" 
+          component={TabNavigator} 
+          options={{ title: "Profile" , headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="AddEmployee" 
+          component={AddEmployeeScreen} 
+          options={{ title: "Add Employee" }} 
+        />
+        <Stack.Screen 
+          name="CoverEmployee" 
+          component={CoverScreen} 
+          options={{ title: "Cover Employee" }} 
         />
       </Stack.Navigator>
     </NavigationContainer>
