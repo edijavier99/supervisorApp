@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import { CodesInfo } from "./codesInfo";
 
 export const Profile = ({ employee }) => {
     const [showTimeGreeting, setShowTimeGreeting] = useState("");
@@ -16,7 +17,7 @@ export const Profile = ({ employee }) => {
     }, []);
 
     return (
-        <View style={styles.profileScreen}>
+        <ScrollView style={styles.profileScreen}>
             <View style={styles.personalInformation}>
                 <View style={styles.personalInfoHeader}>
                     <View>
@@ -46,15 +47,16 @@ export const Profile = ({ employee }) => {
                     <Text style={styles.managerTitle}>Manager</Text>
                     <Text style={styles.managerValue}>Roberto</Text>
                 </View>
+
+                <CodesInfo/>
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     profileScreen: {
         flex: 1,
-        alignItems: "center",
         backgroundColor: "#f5f5f5",
     },
     personalInformation: {
