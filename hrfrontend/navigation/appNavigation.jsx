@@ -2,6 +2,7 @@ import React from "react";
 import { createStackNavigator } from '@react-navigation/stack';
 import { TabNavigator } from "./navigation";
 import { AddEmployeeScreen } from "../screens/addEmployeeScreen";
+import { AllEmployeesScreen } from "../screens/allEmployeesScreen";
 
 const Stack = createStackNavigator();
 

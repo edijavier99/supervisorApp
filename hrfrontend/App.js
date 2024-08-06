@@ -7,6 +7,7 @@ import { LoginScreen } from './screens/loginScreen';
 import { AddEmployeeScreen } from './screens/addEmployeeScreen';
 import { TabNavigator } from './navigation/navigation';
 import { CoverScreen } from './screens/coverScreen';
+import {AllEmployeesScreen } from "./screens/allEmployeesScreen"
 
 enableScreens();
 
@@ -35,6 +36,11 @@ export default function App() {
           name="CoverEmployee" 
           component={CoverScreen} 
           options={{ title: "Cover Employee" }} 
+        />
+        <Stack.Screen 
+          name="AllEmployeesList"
+          component={AllEmployeesScreen}
+          options={{title: "List"}}
         />
       </Stack.Navigator>
     </NavigationContainer>
