@@ -13,12 +13,13 @@ export const CoverScreen = () => {
     { id: '3', name: 'Alice Johnson', hours: '0' }
   ]);
   const [totalAvailableHours, setTotalAvailableHours] = useState(3); // Total de horas disponibles
+  const [remainingHours , setRemainingHours] = useState()
   const [inputVisible, setInputVisible] = useState(false); // Estado para manejar la visibilidad del campo de entrada
   const [currentEmployeeId, setCurrentEmployeeId] = useState(null); // Estado para manejar el empleado actual al que se le asignarán horas
 
   // Función para calcular el total de horas asignadas
   const calculateAssignedHours = () => {
-    return employees.reduce((sum, employee) => sum + parseInt(employee.hours || '0'), 0);
+    return employees.reduce((sum, employee) => sum + parseFloat(employee.hours || '0'), 0);
   };
 
   // Función para manejar la asignación de horas
@@ -30,9 +31,9 @@ export const CoverScreen = () => {
   // Función para manejar los cambios en el campo de entrada
   const handleInputChange = (text) => {
     // Filtra la entrada para permitir solo números
-    const filteredText = text.replace(/[^0-9]/g, '');
-    const newTotalAssignedHours = calculateAssignedHours() - (employees.find(e => e.id === currentEmployeeId)?.hours || 0) + parseInt(filteredText || '0');
-    
+    const filteredText = text.match(/^\d*\.?\d{0,1}/)?.[0] || '';
+    const newTotalAssignedHours = calculateAssignedHours() - (parseFloat(employees.find(e => e.id === currentEmployeeId)?.hours || '0')) + parseFloat(filteredText || '0');
+    setRemainingHours(totalAvailableHours - newTotalAssignedHours)
     // Verifica si el total asignado excede las horas disponibles
     if (newTotalAssignedHours > totalAvailableHours) {
       Alert.alert(
@@ -97,7 +98,7 @@ export const CoverScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.coverHoursAvailable}>{totalAvailableHours} horas disponibles para cubrir</Text>
+      <Text style={styles.coverHoursAvailable}>{remainingHours} horas disponibles para cubrir</Text>
       <View style={styles.selectEmployeeBtnContainer}>
         <TouchableOpacity style={styles.selectEmployeeBtn}>
           <Text style={styles.textStyle}>Seleccionar empleado</Text>
@@ -118,9 +119,29 @@ export const CoverScreen = () => {
         keyExtractor={item => item.id}
         style={styles.flatList}
       />
-      <TouchableOpacity style={styles.saveCoverBtn}>
+      <TouchableOpacity 
+        style={styles.saveCoverBtn}
+        onPress={() => {
+          Alert.alert(
+            "¿Estás seguro de que quieres asignar esas horas?",
+            [
+              {
+                text: "Cancelar",
+                style: "cancel"
+              },
+              {
+                text: "Confirmar",
+                onPress: () => {
+                  navigation.navigate('AllEmployeesList'); // Navegar a la pantalla 'AllEmployeesList'
+                }
+              }
+            ]
+          );
+        }}
+      >
         <Text style={{ color: "white" }}>Guardar cover</Text>
       </TouchableOpacity>
+
     </SafeAreaView>
   );
 };
