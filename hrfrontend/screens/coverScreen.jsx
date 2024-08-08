@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, TouchableOpacity, Text, View, FlatList, TextInput } from 'react-native';
+import { SafeAreaView, StyleSheet, TouchableOpacity, Text, View, FlatList, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 
@@ -12,19 +12,59 @@ export const CoverScreen = () => {
     { id: '2', name: 'Jane Smith', hours: '0' },
     { id: '3', name: 'Alice Johnson', hours: '0' }
   ]);
-
+  const [totalAvailableHours, setTotalAvailableHours] = useState(3); // Total de horas disponibles
   const [inputVisible, setInputVisible] = useState(false); // Estado para manejar la visibilidad del campo de entrada
   const [currentEmployeeId, setCurrentEmployeeId] = useState(null); // Estado para manejar el empleado actual al que se le asignarán horas
 
+  // Función para calcular el total de horas asignadas
+  const calculateAssignedHours = () => {
+    return employees.reduce((sum, employee) => sum + parseInt(employee.hours || '0'), 0);
+  };
+
+  // Función para manejar la asignación de horas
   const handleAssignHours = (id) => {
     setCurrentEmployeeId(id);
     setInputVisible(!inputVisible);
   };
 
+  // Función para manejar los cambios en el campo de entrada
   const handleInputChange = (text) => {
-    setEmployees(employees.map(employee =>
-      employee.id === currentEmployeeId ? { ...employee, hours: text } : employee
-    ));
+    // Filtra la entrada para permitir solo números
+    const filteredText = text.replace(/[^0-9]/g, '');
+    const newTotalAssignedHours = calculateAssignedHours() - (employees.find(e => e.id === currentEmployeeId)?.hours || 0) + parseInt(filteredText || '0');
+    
+    // Verifica si el total asignado excede las horas disponibles
+    if (newTotalAssignedHours > totalAvailableHours) {
+      Alert.alert(
+        "Error",
+        "La cantidad total de horas asignadas no puede exceder las horas disponibles.",
+        [{ text: "OK", style: "cancel" }]
+      );
+    } else {
+      setEmployees(employees.map(employee =>
+        employee.id === currentEmployeeId ? { ...employee, hours: filteredText } : employee
+      ));
+    }
+  };
+
+  // Función para manejar la eliminación de un empleado
+  const handleDeleteClick = (itemId) => {
+    Alert.alert(
+      "Confirmar Eliminación",
+      "¿Estás seguro de que quieres eliminar este empleado?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Eliminar",
+          onPress: () => {
+            setEmployees(employees.filter(employee => employee.id !== itemId));
+          }
+        }
+      ]
+    );
   };
 
   const renderEmployee = ({ item }) => (
@@ -40,24 +80,26 @@ export const CoverScreen = () => {
       ) : (
         <Text>{item.hours} horas</Text>
       )}
-      <Icon
-        name="close"
-        type="font-awesome" // O el tipo de icono que prefieras
-        size={20}
-      />
-      <TouchableOpacity onPress={() => handleAssignHours(item.id)}>
-        <Text>Asignar</Text>
+      <TouchableOpacity style={styles.asignBtn} onPress={() => handleAssignHours(item.id)}>
+        <Text style={styles.asignBtnText}>Asignar</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => handleDeleteClick(item.id)}>
+        <Icon
+          name="minus"
+          type="font-awesome" // O el tipo de icono que prefieras
+          size={20}
+          color={"red"}
+        />
       </TouchableOpacity>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.coverHoursAvailable}>3 horas disponibles para cubrir</Text>
+      <Text style={styles.coverHoursAvailable}>{totalAvailableHours} horas disponibles para cubrir</Text>
       <View style={styles.selectEmployeeBtnContainer}>
-        <TouchableOpacity
-          style={styles.selectEmployeeBtn}
-        >
+        <TouchableOpacity style={styles.selectEmployeeBtn}>
           <Text style={styles.textStyle}>Seleccionar empleado</Text>
         </TouchableOpacity>
         <Icon
@@ -76,8 +118,8 @@ export const CoverScreen = () => {
         keyExtractor={item => item.id}
         style={styles.flatList}
       />
-      <TouchableOpacity style={styles.asignBtn} onPress={() => handleAssignHours(null)}>
-        <Text style={styles.asignBtnText}>Asignar Horas</Text>
+      <TouchableOpacity style={styles.saveCoverBtn}>
+        <Text style={{ color: "white" }}>Guardar cover</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -126,15 +168,21 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     textAlign: 'center',
+    width: "15%"
   },
   asignBtn: {
     backgroundColor: "green",
-    padding: 10,
+    padding: 7,
     borderRadius: 5,
-    marginTop: 20,
   },
   asignBtnText: {
     color: 'white',
     fontSize: 16,
+  },
+  saveCoverBtn: {
+    backgroundColor: "green",
+    borderRadius: 5,
+    padding: 10,
+    marginTop: 20
   }
 });
