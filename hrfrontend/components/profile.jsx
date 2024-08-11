@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, ScrollView,TouchableOpacity } from 'react-native';
 import { CodesInfo } from "./codesInfo";
 import { Badge, Icon } from 'react-native-elements';
-
+import { useNavigation } from '@react-navigation/native';
 
 export const Profile = ({ employee }) => {
+
+    const navigation = useNavigation()
+
     const [showTimeGreeting, setShowTimeGreeting] = useState("");
 
     useEffect(() => {
@@ -27,7 +30,9 @@ export const Profile = ({ employee }) => {
                         <Text style={styles.subTitle}>{showTimeGreeting}</Text>
                     </View>
                  
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button}
+                     onPress={()=> navigation.navigate("Notification")}
+                    >
                         <Icon name="inbox" type="feather" color="#fff" size={24} />
                         <Text style={styles.buttonText}>Inbox</Text>
                         <Badge
