@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView,TouchableOpacity } from 'react-native';
 import { CodesInfo } from "./codesInfo";
-import { Button } from "react-native-elements";
+import { Badge, Icon } from 'react-native-elements';
+
 
 export const Profile = ({ employee }) => {
     const [showTimeGreeting, setShowTimeGreeting] = useState("");
@@ -25,12 +26,19 @@ export const Profile = ({ employee }) => {
                         <Text style={styles.firstTitle}>Dashboard</Text>
                         <Text style={styles.subTitle}>{showTimeGreeting}</Text>
                     </View>
-                    <Image 
-                        source={{ uri: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=1180&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }}
-                        style={styles.profileImage}
-                    />
+                 
+                    <TouchableOpacity style={styles.button}>
+                        <Icon name="inbox" type="feather" color="#fff" size={24} />
+                        <Text style={styles.buttonText}>Inbox</Text>
+                        <Badge
+                            status="error"
+                            value="99"
+                            containerStyle={styles.badgeContainer}
+                            badgeStyle={styles.badge}
+                            />
+                    </TouchableOpacity>
                 </View>
-                <View style={styles.infoContainer}>
+                <View >
                     <Text style={styles.infoLabel}>Nombre:</Text>
                     <Text style={styles.infoValue}>Edison Javier</Text>
                     <Text style={styles.infoLabel}>Móvil:</Text>
@@ -73,6 +81,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         marginBottom: 20,
+        marginTop: 15
     },
     firstTitle: {
         fontWeight: "bold",
@@ -83,11 +92,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "#666",
         marginTop: 5,
-    },
-    profileImage: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
     },
     infoLabel: {
         fontWeight: "bold",
@@ -138,4 +142,27 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#555",
     },
+    // CSS PARA EL BTN DE INBOX
+    button: {
+        backgroundColor: '#007bff',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderRadius: 8,
+        position: 'relative',
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
+      buttonText: {
+        color: '#fff',
+        marginLeft: 8,
+        fontSize: 16,
+      },
+      badgeContainer: {
+        position: 'absolute',
+        top: -7,
+        right: -4,
+      },
+      badge: {
+        backgroundColor: '#dc3545',
+      },
 });

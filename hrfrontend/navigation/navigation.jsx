@@ -5,6 +5,7 @@ import { Team } from "../components/team";
 import { Building } from "../components/building";
 import { Shifts } from "../components/shifts";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Orders } from "../components/orders";
 
 const Tab = createBottomTabNavigator()
 
@@ -24,7 +25,10 @@ export const TabNavigator = () =>{
                         iconName = focused ? 'business' : 'business-outline';
                     } else if (route.name === 'Shifts') {
                         iconName = focused ? 'time' : 'time-outline';
-                    }    
+                    } 
+                    else if (route.name === 'Delivery') {
+                        iconName = focused ? 'cube' : 'cube-outline'; // Ejemplo de icono de caja
+                    }  
                     return <Ionicons name={iconName} size={size} color={color} />                
                 }
             })}
@@ -37,6 +41,7 @@ export const TabNavigator = () =>{
             <Tab.Screen name="Team" component={Team} />
             <Tab.Screen name="Building" component={Building}/>
             <Tab.Screen name="Shifts" component={Shifts} />
+            <Tab.Screen name="Delivery" component={Orders} />
         </Tab.Navigator>
     )
 }

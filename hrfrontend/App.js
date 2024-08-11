@@ -8,6 +8,7 @@ import { AddEmployeeScreen } from './screens/addEmployeeScreen';
 import { TabNavigator } from './navigation/navigation';
 import { CoverScreen } from './screens/coverScreen';
 import {AllEmployeesScreen } from "./screens/allEmployeesScreen"
+import { NotificationScreen } from './screens/notificationScreen';
 
 enableScreens();
 
@@ -42,6 +43,12 @@ export default function App() {
           component={AllEmployeesScreen}
           options={{title: "List"}}
         />
+        <Stack.Screen 
+          name="Notification"
+          component={NotificationScreen}
+          options={{title: "Notifications"}}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
