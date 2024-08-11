@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, TouchableOpacity, Text, View, FlatList, TextInput, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, TouchableOpacity, Text, View, FlatList, TextInput, Alert,Input } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 
+
 export const CoverScreen = () => {
   const navigation = useNavigation();
+  const [text, setText] = useState('');
 
   // Estado para manejar la lista de empleados
   const [employees, setEmployees] = useState([
@@ -68,6 +70,25 @@ export const CoverScreen = () => {
     );
   };
 
+  const handleSafeClick = () =>{
+    Alert.alert(
+      "Confirmar Cover",
+      "Estas seguro que quieres guardar el cover?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        {
+          text: "Guardar",
+          onPress: () => {
+            navigation.navigate("AllEmployeesList")
+          }
+        }
+      ]
+    )
+  }
+
   const renderEmployee = ({ item }) => (
     <View style={styles.employeeContainer}>
       <Text style={styles.employeeName}>{item.name}</Text>
@@ -113,6 +134,17 @@ export const CoverScreen = () => {
         />
       </View>
 
+      <View style={styles.containerCoverReason}>
+      <Text style={styles.label}>Razon del cover</Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={setText}
+        value={text}
+        placeholder="Escriba aquí..."
+      />
+      </View>
+
+
       <FlatList
         data={employees}
         renderItem={renderEmployee}
@@ -121,23 +153,7 @@ export const CoverScreen = () => {
       />
       <TouchableOpacity 
         style={styles.saveCoverBtn}
-        onPress={() => {
-          Alert.alert(
-            "¿Estás seguro de que quieres asignar esas horas?",
-            [
-              {
-                text: "Cancelar",
-                style: "cancel"
-              },
-              {
-                text: "Confirmar",
-                onPress: () => {
-                  navigation.navigate('AllEmployeesList'); // Navegar a la pantalla 'AllEmployeesList'
-                }
-              }
-            ]
-          );
-        }}
+        onPress={() => {handleSafeClick()}}
       >
         <Text style={{ color: "white" }}>Guardar cover</Text>
       </TouchableOpacity>
@@ -151,6 +167,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
+  
   coverHoursAvailable: {
     marginTop: 20,
     marginBottom: 20
@@ -205,5 +222,26 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginTop: 20
-  }
+  },
+  containerCoverReason:{
+    width: "100%",
+    alignItems: "center"
+  },
+  label: {
+    fontSize: 18,
+    marginBottom: 8,
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    width: '90%',
+    paddingHorizontal: 8,
+    marginBottom: 16,
+    borderRadius: 5,
+  },
+  text: {
+    fontSize: 16,
+    color: 'black',
+  },
 });

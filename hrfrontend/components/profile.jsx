@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 import { CodesInfo } from "./codesInfo";
+import { Button } from "react-native-elements";
 
 export const Profile = ({ employee }) => {
     const [showTimeGreeting, setShowTimeGreeting] = useState("");
