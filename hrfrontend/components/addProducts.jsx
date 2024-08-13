@@ -9,6 +9,8 @@ export const AddProduct = ({ categoryId, categoryTitle, onAddProduct }) => {
 
   const handleAddProduct = () => {
     onAddProduct(categoryId, productName, quantity);
+    setProductName("")
+    setQuantity("")
     setVisibleModal(false);
   };
 
