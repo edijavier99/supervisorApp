@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils import timezone
+from building.models import Building
 
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
@@ -61,8 +62,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 # MODEL FOR THE EMPLOYEE
 class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_profile')
-    hire_date = models.DateField()
     position = models.CharField(max_length=100, blank=True, null=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='employees')
+
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
