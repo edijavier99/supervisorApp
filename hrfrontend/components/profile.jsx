@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, ScrollView,TouchableOpacity } from 'reac
 import { CodesInfo } from "./codesInfo";
 import { Badge, Icon } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';  // Importar AsyncStorage
 
 export const Profile = ({ employee }) => {
 
@@ -20,6 +21,10 @@ export const Profile = ({ employee }) => {
             setShowTimeGreeting("Buenas Noches");
         }
     }, []);
+
+    useEffect(()=>{
+        console.log(AsyncStorage.getItem("userToken"));
+    },[])
 
     return (
         <ScrollView style={styles.profileScreen}>
