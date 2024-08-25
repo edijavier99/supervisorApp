@@ -9,6 +9,7 @@ import { TabNavigator } from './navigation/navigation';
 import { CoverScreen } from './screens/coverScreen';
 import {AllEmployeesScreen } from "./screens/allEmployeesScreen"
 import { NotificationScreen } from './screens/notificationScreen';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 enableScreens();
 
@@ -16,6 +17,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
+    <RootSiblingParent>{/* <- use RootSiblingParent to wrap your root component */}
     <NavigationContainer>
       <Stack.Navigator>
       <Stack.Screen 
@@ -48,9 +50,9 @@ export default function App() {
           component={NotificationScreen}
           options={{title: "Notifications"}}
         />
-
       </Stack.Navigator>
     </NavigationContainer>
+    </RootSiblingParent>
   );
 }
 

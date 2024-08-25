@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator,Pressable } from 'react-native';
 import Config from 'react-native-config';
 import AsyncStorage from '@react-native-async-storage/async-storage';  // Importar AsyncStorage
 
@@ -30,7 +30,7 @@ export const LoginForm = ({ navigation }) => {
       }
 
       const data = await response.json();
-      console.log(data.token);
+      console.log(data);
 
     //   Maneja el almacenamiento del token y la navegación aquí
         await AsyncStorage.setItem('userToken', data.token);
@@ -51,7 +51,7 @@ export const LoginForm = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Correo Electrónico"
-        keyboardType="email-address"
+        inputMode="email"
         autoCapitalize="none"  // Desactiva la autocapitalización
         value={userEmail}
         onChangeText={setUserEmail}
@@ -63,7 +63,9 @@ export const LoginForm = ({ navigation }) => {
         value={userPassword}
         onChangeText={setUserPassword}
       />
-      <Button title="Iniciar sesión" onPress={handleLoginSubmit} />
+        <Pressable onPress={handleLoginSubmit}>
+          <Text>Enviar</Text>
+        </Pressable>
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
     </View>
   );

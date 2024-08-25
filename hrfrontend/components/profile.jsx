@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image, ScrollView,TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
 import { CodesInfo } from "./codesInfo";
 import { Badge, Icon } from 'react-native-elements';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';  // Importar AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const Profile = ({ employee }) => {
-
-    const navigation = useNavigation()
-
+    const navigation = useNavigation();
+    const [errorMessage, setErrorMessage] = useState('');
     const [showTimeGreeting, setShowTimeGreeting] = useState("");
+    const [dataUser, setDataUser] = useState({});
 
     useEffect(() => {
         const nowTime = new Date().getHours();
@@ -22,9 +22,57 @@ export const Profile = ({ employee }) => {
         }
     }, []);
 
-    useEffect(()=>{
-        console.log(AsyncStorage.getItem("userToken"));
-    },[])
+    const fetchSingleUser = async () => {
+        const apiUrl = `http://127.0.0.1:8000/myapp/user/`;
+
+        try {
+            const userToken = await AsyncStorage.getItem("userToken");  // Obtener el token del AsyncStorage
+            if (!userToken) {
+                throw new Error("No se encontró el token de usuario");
+            }
+
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Token ${userToken}`  // Usar el token en la solicitud
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Error en la solicitud");
+            }
+
+            const data = await response.json();
+            await AsyncStorage.setItem('user_id', data.id.toString()); // Asegurarse de que el ID esté en formato de cadena
+            console.log(data);
+            setDataUser(data);
+        } catch (error) {
+            setErrorMessage(error.message || 'Error desconocido');
+        }
+    };
+
+    useEffect(() => {
+        fetchSingleUser();
+    }, []);
+
+    const showUserDetails = () => {
+        if (!dataUser || Object.keys(dataUser).length === 0) {
+            return <Text>No user data available</Text>;
+        }
+    
+        return (
+            <View>
+                <Text style={styles.infoLabel}>Nombre:</Text>
+                <Text style={styles.infoValue}>{dataUser.first_name} {dataUser.last_name}</Text>
+                <Text style={styles.infoLabel}>Móvil:</Text>
+                <Text style={styles.infoValue}>647383464</Text>
+                <Text style={styles.infoLabel}>Correo Electrónico:</Text>
+                <Text style={styles.infoValue}>{dataUser.email}</Text>
+            </View>
+        );
+    }
+    
 
     return (
         <ScrollView style={styles.profileScreen}>
@@ -35,8 +83,9 @@ export const Profile = ({ employee }) => {
                         <Text style={styles.subTitle}>{showTimeGreeting}</Text>
                     </View>
                  
-                    <TouchableOpacity style={styles.button}
-                     onPress={()=> navigation.navigate("Notification")}
+                    <Pressable
+                        style={styles.button}
+                        onPress={() => navigation.navigate("Notification")}
                     >
                         <Icon name="inbox" type="feather" color="#fff" size={24} />
                         <Text style={styles.buttonText}>Inbox</Text>
@@ -45,17 +94,10 @@ export const Profile = ({ employee }) => {
                             value="99"
                             containerStyle={styles.badgeContainer}
                             badgeStyle={styles.badge}
-                            />
-                    </TouchableOpacity>
+                        />
+                    </Pressable>
                 </View>
-                <View >
-                    <Text style={styles.infoLabel}>Nombre:</Text>
-                    <Text style={styles.infoValue}>Edison Javier</Text>
-                    <Text style={styles.infoLabel}>Móvil:</Text>
-                    <Text style={styles.infoValue}>647383464</Text>
-                    <Text style={styles.infoLabel}>Correo Electrónico:</Text>
-                    <Text style={styles.infoValue}>edijavier10@gmail.com</Text>
-                </View>
+                {showUserDetails()}
             </View>
             <View style={styles.teamInfoContainer}>
                 <View style={styles.teamInfo}>
@@ -67,11 +109,11 @@ export const Profile = ({ employee }) => {
                     <Text style={styles.managerValue}>Roberto</Text>
                 </View>
 
-                <CodesInfo/>
+                <CodesInfo />
             </View>
         </ScrollView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     profileScreen: {
@@ -161,18 +203,18 @@ const styles = StyleSheet.create({
         position: 'relative',
         flexDirection: 'row',
         alignItems: 'center',
-      },
-      buttonText: {
+    },
+    buttonText: {
         color: '#fff',
         marginLeft: 8,
         fontSize: 16,
-      },
-      badgeContainer: {
+    },
+    badgeContainer: {
         position: 'absolute',
         top: -7,
         right: -4,
-      },
-      badge: {
+    },
+    badge: {
         backgroundColor: '#dc3545',
-      },
+    },
 });
