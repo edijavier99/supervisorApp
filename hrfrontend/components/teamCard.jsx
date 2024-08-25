@@ -21,7 +21,7 @@ export const TeamCard = ({ employee }) => {
     return name.split(' ').map(part => part.charAt(0).toUpperCase()).join('');
   };
 
-  const initials = getInitials(`${employee.firstName} ${employee.lastName}`);
+  const initials = getInitials(`${employee.user.first_name} ${employee.user.last_name}`);
 
   return (
     <View>
@@ -35,7 +35,7 @@ export const TeamCard = ({ employee }) => {
             titleStyle={styles.avatarText}
           />
           <View>
-            <ListItem.Title style={styles.employeeName}>{`${employee.firstName} ${employee.lastName}`}</ListItem.Title>
+            <ListItem.Title style={styles.employeeName}>{`${employee.user.first_name} ${employee.user.last_name}`}</ListItem.Title>
             <ListItem.Subtitle>{employee.mobile}</ListItem.Subtitle>
           </View>
         </ListItem.Content>
@@ -57,7 +57,7 @@ export const TeamCard = ({ employee }) => {
                 setModalVisible(!modalVisible);
                 Alert.alert("Ir al perfil");
               }}>
-              <Text style={styles.textStyle}>Perfil de {employee.firstName}</Text>
+              <Text style={styles.textStyle}>Perfil de {employee.user.first_name}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.buttonRedirect]}
@@ -65,7 +65,7 @@ export const TeamCard = ({ employee }) => {
                 setModalVisible(!modalVisible);
                 Alert.alert("Ir a horas");
               }}>
-              <Text style={styles.textStyle}>Horas de {employee.firstName}</Text>
+              <Text style={styles.textStyle}>Horas de {employee.user.first_name}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity
