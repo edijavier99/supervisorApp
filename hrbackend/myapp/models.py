@@ -1,8 +1,8 @@
 from django.db import models
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils import timezone
 from building.models import Building
+from django.core.exceptions import ValidationError
 
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
@@ -11,17 +11,20 @@ class TimeStampedModel(models.Model):
     class Meta:
         abstract = True
 
-# MODELS FOR THE USER AND ROLES
-
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError('The Email Field must be set')
-        if not password:
-            raise ValueError('The Password Field must be set')  # Ensure password is provided
+            raise ValueError('El campo de correo electrónico debe ser proporcionado')
+        
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
-        user.set_password(password)
+        
+        # Solo establece la contraseña si el usuario no es un empleado
+        if not extra_fields.get('is_employee') and password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()  # Marca la contraseña como no usable para empleados
+        
         user.save(using=self._db)
         return user
 
@@ -30,11 +33,10 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
 
-# USER MODEL
 class User(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['company_number']
 
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
@@ -42,8 +44,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    company_number = models.PositiveIntegerField(unique=True)
+    is_supervisor = models.BooleanField(default=False)
+    is_employee = models.BooleanField(default=False)  # Indica si el usuario es un empleado
+    company_number = models.PositiveIntegerField()
+    phone_number = models.CharField(max_length=20, blank=True, null=True)  # Usar CharField para números de teléfono
 
     objects = CustomUserManager()
 
@@ -59,12 +63,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.is_manager and self.is_superuser:
             raise ValidationError('A user cannot be both a manager and supervisor')
 
+
 # MODEL FOR THE EMPLOYEE
 class Employee(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='employee_profile')  # Corrected here
     position = models.CharField(max_length=100, blank=True, null=True)
-    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='employees')
-
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='employees', null=True)
+    
+    # Campo para almacenar el supervisor
+    supervisor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='supervised_employees')
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
@@ -72,4 +79,3 @@ class Employee(models.Model):
     class Meta:
         verbose_name = 'Employee'
         verbose_name_plural = 'Employees'
-
