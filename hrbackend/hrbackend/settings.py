@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'delivery',
     'hours',
     'corsheaders',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken',
+
 ]
 
 MIDDLEWARE = [
@@ -58,6 +60,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    'http://localhost:19006'
 ]
 
 ROOT_URLCONF = 'hrbackend.urls'
@@ -86,8 +89,12 @@ WSGI_APPLICATION = 'hrbackend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # Corregido a 'postgresql'
+        'NAME': 'hrapp',  
+        'USER': 'postgres',    
+        'PASSWORD': 'Ilargia1234',  
+        'HOST': 'localhost',  
+        'PORT': '5432',  # Corregido a '5432' para PostgreSQL
     }
 }
 
@@ -112,6 +119,16 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Configuración de REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
 
 
 # Internationalization

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet,ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Icon } from 'react-native-elements';
 
 // Dummy data con empleados únicos en cada columna y piso
 const dummyData = {
@@ -12,94 +14,6 @@ const dummyData = {
     ],
     right: [
       { employeeName: 'Grace Lee', employeeNumber: 'E007' },
-    ],
-  },
-  floor2: {
-    left: [
-      { employeeName: 'Jack Martin', employeeNumber: 'E010' },
-    ],
-    center: [
-      { employeeName: 'Liam Walker', employeeNumber: 'E013' },
-    ],
-    right: [
-      { employeeName: 'Olivia Young', employeeNumber: 'E016' },
-    ],
-  },
-  floor3: {
-    left: [
-      { employeeName: 'Rachel Turner', employeeNumber: 'E019' },
-    ],
-    center: [
-      { employeeName: 'Ursula Phillips', employeeNumber: 'E022' },
-    ],
-    right: [
-      { employeeName: 'Xander Moore', employeeNumber: 'E025' },
-    ],
-  },
-  floor4: {
-    left: [
-      { employeeName: 'Alice Cooper', employeeNumber: 'E028' },
-    ],
-    center: [
-      { employeeName: 'Brian Adams', employeeNumber: 'E031' },
-    ],
-    right: [
-      { employeeName: 'Claire Foster', employeeNumber: 'E034' },
-    ],
-  },
-  floor5: {
-    left: [
-      { employeeName: 'Daniel Evans', employeeNumber: 'E037' },
-    ],
-    center: [
-      { employeeName: 'Eva Johnson', employeeNumber: 'E040' },
-    ],
-    right: [
-      { employeeName: 'Frank Martinez', employeeNumber: 'E043' },
-    ],
-  },
-  floor6: {
-    left: [
-      { employeeName: 'Grace Brown', employeeNumber: 'E046' },
-    ],
-    center: [
-      { employeeName: 'Henry Clark', employeeNumber: 'E049' },
-    ],
-    right: [
-      { employeeName: 'Ivy Lewis', employeeNumber: 'E052' },
-    ],
-  },
-  floor7: {
-    left: [
-      { employeeName: 'Jack Wilson', employeeNumber: 'E055' },
-    ],
-    center: [
-      { employeeName: 'Kara Adams', employeeNumber: 'E058' },
-    ],
-    right: [
-      { employeeName: 'Liam King', employeeNumber: 'E061' },
-    ],
-  },
-  floor8: {
-    left: [
-      { employeeName: 'Mia Davis', employeeNumber: 'E064' },
-    ],
-    center: [
-      { employeeName: 'Nathan Scott', employeeNumber: 'E067' },
-    ],
-    right: [
-      { employeeName: 'Olivia Harris', employeeNumber: 'E070' },
-    ],
-  },
-  floor9: {
-    left: [
-      { employeeName: 'Paul Walker', employeeNumber: 'E073' },
-    ],
-    center: [
-      { employeeName: 'Quinn Roberts', employeeNumber: 'E076' },
-    ],
-    right: [
-      { employeeName: 'Rachel Lee', employeeNumber: 'E079' },
     ],
   },
 };
@@ -130,16 +44,62 @@ const Floor = ({ data, floorNumber }) => {
 export const Building = () => {
   const floors = Object.keys(dummyData);
   const floorComponents = [];
+  const [buildingInformation, setBuildingInformation] = useState({
+    name: "",
+    total_hours: "",
+    address: "",
+  })
+  const [floor,SetFloor] = useState()
+  const [userToken, setUserToken] = useState(null);
+  const retrieveToken = async () => {
+    const token = await AsyncStorage.getItem("userToken");
+    setUserToken(token);
+};
 
-  let i = 0;
-  while (i < floors.length) {
-    const floorKey = floors[i];
-    const floorNumber = floorKey.replace('floor', ''); // Extraer el número del piso de la clave
-    floorComponents.push(
-      <Floor key={floorKey} data={dummyData[floorKey]} floorNumber={floorNumber} />
-    );
-    i++;
-  }
+  useEffect(() => {
+    if (userToken) {
+        const retrieveBuilding = async () => {
+            const apiUrl = "http://127.0.0.1:8000/building/buildings/";
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Token ${userToken}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log(data);
+                if (Array.isArray(data) && data.length > 0) {
+                  const building = data[0];
+                  setBuildingInformation({
+                      name: building.name || "",
+                      total_hours: building.building_hours || "",
+                      address: building.address || "",
+                  });
+              }
+            } catch (error) {
+                console.error("Fetch error:", error.message);
+            }
+        };
+        retrieveBuilding();
+    } else {
+        retrieveToken(); // Retrieve the token if not already available
+    }
+}, [userToken]);
+
+  // let i = 0;
+  // while (i < floors.length) {
+  //   const floorKey = floors[i];
+  //   const floorNumber = floorKey.replace('floor', ''); // Extraer el número del piso de la clave
+  //   floorComponents.push(
+  //     <Floor key={floorKey} data={dummyData[floorKey]} floorNumber={floorNumber} />
+  //   );
+  //   i++;
+  // }
 
   const colorListItems = [
     { name: 'Eagle Area', color: 'lightgray', hours: "5" },
@@ -159,14 +119,17 @@ export const Building = () => {
 
   return (
     <ScrollView style={styles.buildingContainer}>
-        <Text style={styles.title}>Uncommon Building</Text>
-        <Text style={styles.title}>SE5 8D2 Appleshaw House</Text>
-        <Text style={styles.title}>Building total hours 200</Text>
+        <Text style={styles.title}>{buildingInformation.name}</Text>
+        <Text style={styles.title}>{buildingInformation.address}</Text>
+        <Text style={styles.title}>Building total hours {buildingInformation.total_hours}</Text>
         <View style={styles.listItemContainer}>
           {showColorListItems()}
-
         </View>
         {floorComponents}
+        <View style={styles.floorContainer}>
+        <Icon name="plus" type="font-awesome" size={20} color="green" style={styles.icon} />
+
+        </View>
     </ScrollView>
   );
 };
