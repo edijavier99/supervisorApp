@@ -3,6 +3,8 @@ from rest_framework import generics
 from .models import Building, Floor, FloorSection
 from .serializers import BuildingSerializer, FloorSerializer, FloorSectionSerializer
 
+
+# MISSING OF AUTH
 class BuildingListCreateView(generics.ListCreateAPIView):
     queryset = Building.objects.all()
     serializer_class = BuildingSerializer

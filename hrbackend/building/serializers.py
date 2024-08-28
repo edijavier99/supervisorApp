@@ -13,22 +13,18 @@ class FloorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Floor
-        fields = ('id', 'floor_number', 'building', 'sections')
-
+        fields = ('id', 'floor_number', 'building', 'sections', 'section_numbers')
 
 class BuildingSerializer(serializers.ModelSerializer):
-    # Campos de relación
     supervisor = serializers.PrimaryKeyRelatedField(
         queryset=Employee.objects.all(),
-        required=False,  # Permitir que sea opcional
-        allow_null=True  # Permitir null
+        required=False,
+        allow_null=True
     )
     managers = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.filter(is_manager=True),
         many=True
     )
-
-    # Serializador anidado para pisos (lectura solamente)
     floors = FloorSerializer(many=True, read_only=True)
 
     class Meta:
@@ -36,7 +32,7 @@ class BuildingSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'building_hours', 'address', 'supervisor', 'managers', 'floors')
 
     def create(self, validated_data):
-        # Primero, crea el edificio sin asociar los gerentes
+        # Primero, crea el edificio
         building = super().create(validated_data)
         
         # Asocia los gerentes después de que el edificio haya sido guardado

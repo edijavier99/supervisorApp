@@ -35,7 +35,7 @@ class Building(models.Model):
 class Floor(models.Model):
     floor_number = models.PositiveIntegerField(unique=True)
     building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='floors')
-    # section_number 
+    section_numbers = models.PositiveIntegerField(null=True, blank=True)
     
 
     class Meta:
