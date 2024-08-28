@@ -1,105 +1,87 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet,ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Icon } from 'react-native-elements';
+import { AddFloorModal } from './building/addFloorModal';
 
-// Dummy data con empleados únicos en cada columna y piso
-const dummyData = {
-  floor1: {
-    left: [
-      { employeeName: 'Alice Johnson', employeeNumber: 'E001' },
-    ],
-    center: [
-      { employeeName: 'David Brown', employeeNumber: 'E004' },
-    ],
-    right: [
-      { employeeName: 'Grace Lee', employeeNumber: 'E007' },
-    ],
-  },
-};
-
-const columnColors = ['lightgray', '#f39c12', '#DCDCDC']; // Puedes ajustar los colores aquí
-const columnNames = ['left', 'center', 'right'];
-
-const Floor = ({ data, floorNumber }) => {
-  return (
-    <View style={styles.floorContainer}>
-      <View style={styles.windowContainer}>
-        {columnNames.map((column, index) => (
-          <View key={index} style={styles.windowColumn}>
-            {data[column].map((windowData, i) => (
-              <View key={i} style={[styles.window, { backgroundColor: columnColors[index] }]}>
-                <Text style={styles.windowText}>{windowData.employeeName}</Text>
-                <Text style={styles.windowText}>{windowData.employeeNumber}</Text>
-              </View>
-            ))}
-          </View>
-        ))}
-      </View>
-      <Text style={styles.floorNumber}>Floor {floorNumber}</Text>
-    </View>
-  );
-};
+const columnColors = ['lightgray', '#f39c12', '#DCDCDC'];
 
 export const Building = () => {
-  const floors = Object.keys(dummyData);
-  const floorComponents = [];
   const [buildingInformation, setBuildingInformation] = useState({
     name: "",
     total_hours: "",
     address: "",
-  })
-  const [floor,SetFloor] = useState()
+    floors: [],
+  });
   const [userToken, setUserToken] = useState(null);
+
   const retrieveToken = async () => {
     const token = await AsyncStorage.getItem("userToken");
     setUserToken(token);
-};
+  };
+
+  const fetchBuildingInformation = async () => {
+    if (userToken) {
+      const apiUrl = "http://127.0.0.1:8000/building/buildings/";
+      try {
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Token ${userToken}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const building = data[0];
+          await AsyncStorage.setItem('building_id', JSON.stringify(building.id));
+          setBuildingInformation({
+            name: building.name || "",
+            total_hours: building.building_hours || "",
+            address: building.address || "",
+            floors: building.floors || [],
+          });
+        }
+      } catch (error) {
+        console.error("Fetch error:", error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    retrieveToken();
+  }, []);
 
   useEffect(() => {
     if (userToken) {
-        const retrieveBuilding = async () => {
-            const apiUrl = "http://127.0.0.1:8000/building/buildings/";
-            try {
-                const response = await fetch(apiUrl, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Token ${userToken}`
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const data = await response.json();
-                console.log(data);
-                if (Array.isArray(data) && data.length > 0) {
-                  const building = data[0];
-                  setBuildingInformation({
-                      name: building.name || "",
-                      total_hours: building.building_hours || "",
-                      address: building.address || "",
-                  });
-              }
-            } catch (error) {
-                console.error("Fetch error:", error.message);
-            }
-        };
-        retrieveBuilding();
-    } else {
-        retrieveToken(); // Retrieve the token if not already available
+      fetchBuildingInformation();
     }
-}, [userToken]);
+  }, [userToken]);
 
-  // let i = 0;
-  // while (i < floors.length) {
-  //   const floorKey = floors[i];
-  //   const floorNumber = floorKey.replace('floor', ''); // Extraer el número del piso de la clave
-  //   floorComponents.push(
-  //     <Floor key={floorKey} data={dummyData[floorKey]} floorNumber={floorNumber} />
-  //   );
-  //   i++;
-  // }
+  const handleFloorAdded = () => {
+    fetchBuildingInformation(); // Refresh building information after adding a new floor
+  };
+
+
+
+  const renderFloor = (floor) => {
+    const sectionCount = parseInt(floor.section_numbers, 10) || 0;
+
+    return (
+      <View key={floor.id} style={styles.floorContainer}>
+        <Text style={styles.floorNumber}>Floor {floor.floor_number}</Text>
+        <View style={styles.sectionsContainer}>
+          {[...Array(sectionCount)].map((_, index) => (
+            <View key={index} style={[styles.sectionSquare, { backgroundColor: columnColors[index % columnColors.length] }]}>
+              <Text style={styles.sectionText}>Section {index + 1}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  };
 
   const colorListItems = [
     { name: 'Eagle Area', color: 'lightgray', hours: "5" },
@@ -117,6 +99,8 @@ export const Building = () => {
     ));
   };
 
+  const totalFloors = buildingInformation.floors.length;
+
   return (
     <ScrollView style={styles.buildingContainer}>
         <Text style={styles.title}>{buildingInformation.name}</Text>
@@ -125,14 +109,14 @@ export const Building = () => {
         <View style={styles.listItemContainer}>
           {showColorListItems()}
         </View>
-        {floorComponents}
         <View style={styles.floorContainer}>
-        <Icon name="plus" type="font-awesome" size={20} color="green" style={styles.icon} />
-
+          <AddFloorModal totalFloors={totalFloors}  onFloorAdded={handleFloorAdded} />
+          {buildingInformation.floors.map(renderFloor)}
         </View>
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   buildingContainer: {
@@ -154,11 +138,30 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     elevation: 3, // For Android shadow
     shadowColor: '#000', // For iOS shadow
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     paddingHorizontal: 10,
     paddingVertical: 5,
+  },
+  sectionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between', // Distribute space evenly between items
+    alignItems: 'center', // Center items vertically within the container
+  },
+  sectionText: {
+    color: '#333',
+    fontSize: 12,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  sectionSquare: {
+    width: '30%', // Adjust width to fit 3 items per row (e.g., 30% for 3 items with some margin)
+    height: 60, 
+    marginBottom: 10, // Margin at the bottom of each square
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
   },
   windowContainer: {
     flexDirection: 'row',

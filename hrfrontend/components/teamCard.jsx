@@ -11,7 +11,6 @@ export const TeamCard = ({ employee }) => {
   const handleCall = (phoneNumber) => {
     let formattedNumber = phoneNumber.replace(/\s+/g, ''); // Eliminar espacios
     Linking.openURL(`tel:${formattedNumber}`).catch((err) => {
-      console.error('Error:', err);
       Alert.alert('Error', 'No se pudo abrir la aplicación de teléfono.');
     });
   };
