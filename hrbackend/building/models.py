@@ -47,13 +47,14 @@ class Floor(models.Model):
 class FloorSection(models.Model):
     section_hours = models.FloatField()
     section_color = models.CharField(max_length=50)
-    floor = models.ForeignKey(Floor, on_delete=models.CASCADE, related_name='sections')
+    building = models.ForeignKey(Building, blank=True ,null=True ,on_delete=models.CASCADE, related_name='sections')
+    section_name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Floor section'
+        verbose_name = 'Floors section'
         indexes = [
             models.Index(fields=['section_color']),
         ]
         
     def __str__(self):
-        return f"Section {self.pk} on Floor {self.floor.floor_number} with color {self.section_color}"
+        return f"Section {self.section_name} on Building {self.building.name} with color {self.section_color}"
