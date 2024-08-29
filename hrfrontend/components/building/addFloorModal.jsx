@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { View, Button, Modal, StyleSheet,Text } from "react-native";
+import { View, Button, Modal, StyleSheet, Text } from "react-native";
 import { AddFloor } from "./addFloor";
+import { AddSection } from "./addSection";
 import { Icon } from 'react-native-elements';
 
-export const AddFloorModal = ({ onFloorAdded,totalFloors }) => {
+export const AddFloorModal = ({ name, onFloorAdded, onSectionAdded, totalFloors }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleOpenModal = () => {
@@ -12,6 +13,15 @@ export const AddFloorModal = ({ onFloorAdded,totalFloors }) => {
 
   const handleCloseModal = () => {
     setModalVisible(false);
+  };
+
+  const renderModalContent = () => {
+    if (name === "addFloor") {
+      return <AddFloor totalFloors={totalFloors} onFloorAdded={onFloorAdded} />;
+    } else if (name === "addSection") {
+      return <AddSection onSectionAdded={onSectionAdded} />;
+    }
+    return null; // En caso de que `name` no coincida con ninguno
   };
 
   return (
@@ -32,7 +42,7 @@ export const AddFloorModal = ({ onFloorAdded,totalFloors }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <AddFloor totalFloor={totalFloors} onFloorAdded={onFloorAdded} />
+            {renderModalContent()}
             <Button title="Close" onPress={handleCloseModal} />
           </View>
         </View>
@@ -40,7 +50,6 @@ export const AddFloorModal = ({ onFloorAdded,totalFloors }) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -50,7 +59,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: 300,
+    width: "95%",
     padding: 20,
     backgroundColor: "white",
     borderRadius: 10,
@@ -70,4 +79,3 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 });
-

@@ -6,7 +6,7 @@ from myapp.models import Employee,User
 class FloorSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FloorSection
-        fields = ('id', 'section_hours', 'section_color', 'floor')
+        fields = ('id','section_name','section_hours', 'section_color', 'building')
 
 class FloorSerializer(serializers.ModelSerializer):
     sections = FloorSectionSerializer(many=True, read_only=True)  # Nested serializer
@@ -26,10 +26,11 @@ class BuildingSerializer(serializers.ModelSerializer):
         many=True
     )
     floors = FloorSerializer(many=True, read_only=True)
+    sections = FloorSectionSerializer(many=True)
 
     class Meta:
         model = Building
-        fields = ('id', 'name', 'building_hours', 'address', 'supervisor', 'managers', 'floors')
+        fields = ('id', 'name', 'building_hours', 'address', 'supervisor', 'managers', 'floors', 'sections')
 
     def create(self, validated_data):
         # Primero, crea el edificio
@@ -45,13 +46,19 @@ class BuildingSerializer(serializers.ModelSerializer):
             floor_data['building'] = building
             Floor.objects.create(**floor_data)
 
+        # Manejo de secciones anidadas si es necesario
+        sections_data = self.context['request'].data.get('sections', [])
+        for section_data in sections_data:
+            section_data['building'] = building
+            FloorSection.objects.create(**section_data)
+
         return building
 
     def update(self, instance, validated_data):
         # Actualiza el edificio
         instance = super().update(instance, validated_data)
         
-        # Actualiza la relación muchos a muchos
+        # Actualiza la relación muchos a muchos de gerentes
         managers_data = self.context['request'].data.get('managers', [])
         instance.managers.set(managers_data)
 
@@ -76,5 +83,27 @@ class BuildingSerializer(serializers.ModelSerializer):
         # Elimina los pisos que no están incluidos en la actualización
         for floor in existing_floors.values():
             floor.delete()
+
+        # Actualiza las secciones existentes
+        sections_data = self.context['request'].data.get('sections', [])
+        existing_sections = {section.id: section for section in instance.sections.all()}
+        for section_data in sections_data:
+            section_id = section_data.get('id')
+            if section_id:
+                # Actualiza sección existente
+                section = existing_sections.get(section_id)
+                if section:
+                    for attr, value in section_data.items():
+                        setattr(section, attr, value)
+                    section.save()
+                    existing_sections.pop(section_id)
+            else:
+                # Crea una nueva sección
+                section_data['building'] = instance
+                FloorSection.objects.create(**section_data)
+
+        # Elimina las secciones que no están incluidas en la actualización
+        for section in existing_sections.values():
+            section.delete()
 
         return instance

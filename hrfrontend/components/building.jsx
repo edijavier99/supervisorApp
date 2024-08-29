@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView,Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddFloorModal } from './building/addFloorModal';
 
@@ -11,6 +11,7 @@ export const Building = () => {
     total_hours: "",
     address: "",
     floors: [],
+    sections: []
   });
   const [userToken, setUserToken] = useState(null);
 
@@ -18,6 +19,7 @@ export const Building = () => {
     const token = await AsyncStorage.getItem("userToken");
     setUserToken(token);
   };
+
 
   const fetchBuildingInformation = async () => {
     if (userToken) {
@@ -34,6 +36,7 @@ export const Building = () => {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
+        console.log(data);
         if (Array.isArray(data) && data.length > 0) {
           const building = data[0];
           await AsyncStorage.setItem('building_id', JSON.stringify(building.id));
@@ -42,6 +45,7 @@ export const Building = () => {
             total_hours: building.building_hours || "",
             address: building.address || "",
             floors: building.floors || [],
+            sections: building.sections || [],
           });
         }
       } catch (error) {
@@ -64,7 +68,13 @@ export const Building = () => {
     fetchBuildingInformation(); // Refresh building information after adding a new floor
   };
 
+  const handleSectionAdded = () =>{
+    fetchBuildingInformation(); // Refresh building information after adding a new floor
+  };
 
+  const handlePress = (index) =>{
+    console.log(index);
+  }
 
   const renderFloor = (floor) => {
     const sectionCount = parseInt(floor.section_numbers, 10) || 0;
@@ -74,9 +84,20 @@ export const Building = () => {
         <Text style={styles.floorNumber}>Floor {floor.floor_number}</Text>
         <View style={styles.sectionsContainer}>
           {[...Array(sectionCount)].map((_, index) => (
-            <View key={index} style={[styles.sectionSquare, { backgroundColor: columnColors[index % columnColors.length] }]}>
-              <Text style={styles.sectionText}>Section {index + 1}</Text>
-            </View>
+            <Pressable 
+            key={index} 
+            style={({ pressed }) => [
+              styles.sectionSquare, 
+              { 
+                backgroundColor: columnColors[index % columnColors.length],
+                opacity: pressed ? 0.5 : 1,  // Esto es opcional, pero muestra una animación cuando se presiona
+              }
+            ]} 
+            onPress={() => handlePress(index)}  // Aquí llamas a la función que maneja el evento onPress
+          >
+            <Text style={styles.sectionText}>Section {index + 1}</Text>
+          </Pressable>
+          
           ))}
         </View>
       </View>
@@ -90,11 +111,11 @@ export const Building = () => {
   ];
   
   const showColorListItems = () => {
-    return colorListItems.map((item, index) => (
+    return buildingInformation.sections.map((item, index) => (
       <View key={index} style={styles.singleItemContainer}>
-        <View key={index} style={[styles.listItem, { backgroundColor: item.color }]}></View>
-        <Text>{item.name}</Text>
-        <Text>{item.hours} Horas</Text>
+        <View key={index} style={[styles.listItem, { backgroundColor: item.section_color }]}></View>
+        <Text>{item.section_name}</Text>
+        <Text>{item.section_hours} Horas</Text>
       </View>
     ));
   };
@@ -107,10 +128,11 @@ export const Building = () => {
         <Text style={styles.title}>{buildingInformation.address}</Text>
         <Text style={styles.title}>Building total hours {buildingInformation.total_hours}</Text>
         <View style={styles.listItemContainer}>
+          <AddFloorModal name="addSection" onSectionAdded={handleSectionAdded} />
           {showColorListItems()}
         </View>
         <View style={styles.floorContainer}>
-          <AddFloorModal totalFloors={totalFloors}  onFloorAdded={handleFloorAdded} />
+          <AddFloorModal name="addFloor" totalFloors={totalFloors}  onFloorAdded={handleFloorAdded} />
           {buildingInformation.floors.map(renderFloor)}
         </View>
     </ScrollView>
