@@ -65,10 +65,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class DropdownSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
+
     class Meta:
         model = Employee
-        fields = ('id', 'first_name', 'last_name') 
-         
+        fields = ('id', 'first_name', 'last_name')
+
 class EmployeeDetailSerializer(serializers.ModelSerializer):
     user = UserDetailSerializer()
     # Si necesitas incluir detalles del building y/o supervisor, añade sus serializadores aquí.

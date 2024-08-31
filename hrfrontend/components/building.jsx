@@ -78,35 +78,54 @@ export const Building = () => {
     fetchBuildingInformation(); // Refresh building information after adding a new floor
   };
 
-  const handleSecctionPress = (index) =>{
+  const handleSecctionPress = () =>{
+    fetchBuildingInformation();
   }
 
   const renderFloor = (floor) => {
     const sectionCount = parseInt(floor.section_numbers, 10) || 0;
+  
+    // Crear un array con "Vacío" en todas las posiciones
+    const sectionsArray = Array.from({ length: sectionCount }, (_, index) => ({
+      position: index,
+      content: 'Vacío',
+    }));
+  
+    // Rellenar el array con los datos reales basados en specific_position
+    floor.single_floor_sections.forEach(section => {
+      if (section.specific_position < sectionCount) {
+        sectionsArray[section.specific_position] = {
+          position: section.specific_position,
+          content: section.assigned_employee_name || 'Vacío',
+        };
+      }
+    });
+  
     return (
       <View key={floor.id} style={styles.floorContainer}>
         <Text style={styles.floorNumber}>Floor {floor.floor_number}</Text>
         <View style={styles.sectionsContainer}>
-          {[...Array(sectionCount)].map((item, index) => (
+          {sectionsArray.map((section, index) => (
             <View 
               key={index} 
               style={[
                 styles.sectionSquare, 
                 { 
                   backgroundColor: sectionColors[index % sectionColors.length],
-                  flexBasis: `${100 / sectionCount}%`, // Ajuste dinámico del tamaño de cada sección
+                  flexBasis: `${100 / sectionCount}%`, // Ajuste dinámico del tamaño
                 }
               ]}
             >
-              <AddSectionModal/>
-              <Text style={styles.sectionText}>Disponible {index + 1}</Text>
+              <AddSectionModal onSingleSectionAdded={handleSecctionPress} floorId={floor.id} positionId={index}/>
+              <Text style={styles.sectionText}>
+                {section.content}
+              </Text>
             </View>
           ))}
         </View>
       </View>
     );
   };
-
   
   const showColorListItems = () => {
     return buildingInformation.sections.map((item, index) => (

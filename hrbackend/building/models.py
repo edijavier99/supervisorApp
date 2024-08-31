@@ -70,6 +70,7 @@ class FloorSection(models.Model):
 
 class SingleFloorSection(models.Model):
     floor = models.ForeignKey(Floor, null=True, blank=True, on_delete=models.CASCADE, related_name="single_floor_sections")
+    specific_position = models.IntegerField(null=True, blank=True)
     assigned_employee = models.ForeignKey(
         'myapp.Employee',
         null=True,

@@ -10,6 +10,7 @@ class FloorSectionSerializer(serializers.ModelSerializer):
         model = FloorSection
         fields = ('id', 'section_name', 'section_hours', 'section_color', 'building', 'assigned_employee_name')
 
+    #borrar este porque una secttion no tiene employees, esto es para mostrar las tipo de secciones que hay en el edificio
     def get_assigned_employee_name(self, obj):
         # Devuelve el nombre del empleado asignado, si existe
         return obj.assigned_employee.name if obj.assigned_employee else None
@@ -25,11 +26,15 @@ class SingleFloorSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SingleFloorSection
-        fields = ('id', 'floor', 'assigned_employee', 'assigned_employee_name')
+        fields = ('id', 'floor', 'assigned_employee', 'assigned_employee_name', "specific_position")
 
     def get_assigned_employee_name(self, obj):
-        # Devuelve el nombre del empleado asignado si existe, de lo contrario, None
-        return obj.assigned_employee.id if obj.assigned_employee else None
+        # Devuelve el nombre completo del empleado asignado si existe, de lo contrario, None
+        if obj.assigned_employee:
+            first_name = obj.assigned_employee.user.first_name
+            return f"{first_name}"
+        return None
+
 
 class FloorSerializer(serializers.ModelSerializer):
     sections = FloorSectionSerializer(many=True, read_only=True)  # Nested serializer for FloorSection

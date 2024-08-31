@@ -34,7 +34,6 @@ export const EmployeeDropdown = ({ onSelect }) => {
             label: `${employee.first_name} ${employee.last_name}`,
             value: employee.id.toString(),
           }));
-          console.log(employees);
           setData(dropdownData);
         } else {
           console.error('Failed to fetch employees');

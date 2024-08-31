@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 import { EmployeeDropdown } from "./employeeDropdown";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const AddSectionModal = ({ floorId }) => {
+export const AddSectionModal = ({ floorId, positionId,onSingleSectionAdded }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
@@ -31,7 +31,8 @@ export const AddSectionModal = ({ floorId }) => {
         },
         body: JSON.stringify({
           floor: floorId,
-          assigned_employee: selectedEmployeeId
+          assigned_employee: selectedEmployeeId,
+          specific_position: positionId
         })
       });
 
@@ -43,7 +44,6 @@ export const AddSectionModal = ({ floorId }) => {
 
       const data = await response.json();
       Alert.alert('Success', 'Section created successfully');
-      console.log('Section created successfully:', data);
     } catch (err) {
       Alert.alert('Error', 'Error creating section: ' + err.message);
     }
@@ -61,6 +61,7 @@ export const AddSectionModal = ({ floorId }) => {
   const handleSave = () => {
     if (selectedEmployeeId) {
       createSectionWithEmployee();
+      onSingleSectionAdded();
     } else {
       Alert.alert('Error', 'Please select an employee');
     }
@@ -120,11 +121,9 @@ export const AddSectionModal = ({ floorId }) => {
             <Pressable style={styles.button} onPress={handleSave}>
               <Text style={styles.buttonText}>Guardar</Text>
             </Pressable>
-
             <Pressable style={styles.closeButton} onPress={handleCloseModal}>
               <Text style={styles.closeButtonText}>Close</Text>
             </Pressable>
-            <Text>{selectedEmployeeId ? `Selected Employee ID: ${selectedEmployeeId}` : 'No employee selected'}</Text>
           </View>
         </View>
       </Modal>
