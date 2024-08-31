@@ -28,6 +28,7 @@ export const Team = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         setEmployees(data); // Actualizar el estado con los datos de la API
       } else {
         console.error('Error en la respuesta:', response.statusText);

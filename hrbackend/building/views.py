@@ -1,7 +1,7 @@
 # myapp/views.py
 from rest_framework import generics
-from .models import Building, Floor, FloorSection
-from .serializers import BuildingSerializer, FloorSerializer, FloorSectionSerializer
+from .models import Building, Floor, FloorSection,SingleFloorSection
+from .serializers import BuildingSerializer, FloorSerializer, FloorSectionSerializer,SingleFloorSectionSerializer
 
 
 # MISSING OF AUTH
@@ -28,3 +28,12 @@ class FloorSectionListCreateView(generics.ListCreateAPIView):
 class FloorSectionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FloorSection.objects.all()
     serializer_class = FloorSectionSerializer
+
+
+class SingleFloorSectionCreateView(generics.ListCreateAPIView):
+    queryset = SingleFloorSection.objects.all()
+    serializer_class = SingleFloorSectionSerializer
+
+class SingleFloorSectionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset= SingleFloorSection.objects.all()
+    serializer_class = SingleFloorSectionSerializer 

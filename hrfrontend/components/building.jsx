@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView,Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AddFloorModal } from './building/addFloorModal';
+import { AddSectionModal } from './building/addSectionModal';
 
 const columnColors = ['lightgray', '#f39c12', '#DCDCDC'];
 
@@ -11,9 +12,10 @@ export const Building = () => {
     total_hours: "",
     address: "",
     floors: [],
-    sections: []
+    sections: [],
   });
   const [userToken, setUserToken] = useState(null);
+  const [sectionColors, setSectionColors] = useState([])
 
   const retrieveToken = async () => {
     const token = await AsyncStorage.getItem("userToken");
@@ -40,6 +42,9 @@ export const Building = () => {
         if (Array.isArray(data) && data.length > 0) {
           const building = data[0];
           await AsyncStorage.setItem('building_id', JSON.stringify(building.id));
+          console.log("aquioii",building.sections[0].section_color );
+          const colors = building.sections.map(section => section.section_color);
+
           setBuildingInformation({
             name: building.name || "",
             total_hours: building.building_hours || "",
@@ -47,6 +52,7 @@ export const Building = () => {
             floors: building.floors || [],
             sections: building.sections || [],
           });
+          setSectionColors(colors)
         }
       } catch (error) {
         console.error("Fetch error:", error.message);
@@ -72,43 +78,35 @@ export const Building = () => {
     fetchBuildingInformation(); // Refresh building information after adding a new floor
   };
 
-  const handlePress = (index) =>{
-    console.log(index);
+  const handleSecctionPress = (index) =>{
   }
 
   const renderFloor = (floor) => {
     const sectionCount = parseInt(floor.section_numbers, 10) || 0;
-
     return (
       <View key={floor.id} style={styles.floorContainer}>
         <Text style={styles.floorNumber}>Floor {floor.floor_number}</Text>
         <View style={styles.sectionsContainer}>
-          {[...Array(sectionCount)].map((_, index) => (
-            <Pressable 
-            key={index} 
-            style={({ pressed }) => [
-              styles.sectionSquare, 
-              { 
-                backgroundColor: columnColors[index % columnColors.length],
-                opacity: pressed ? 0.5 : 1,  // Esto es opcional, pero muestra una animación cuando se presiona
-              }
-            ]} 
-            onPress={() => handlePress(index)}  // Aquí llamas a la función que maneja el evento onPress
-          >
-            <Text style={styles.sectionText}>Section {index + 1}</Text>
-          </Pressable>
-          
+          {[...Array(sectionCount)].map((item, index) => (
+            <View 
+              key={index} 
+              style={[
+                styles.sectionSquare, 
+                { 
+                  backgroundColor: sectionColors[index % sectionColors.length],
+                  flexBasis: `${100 / sectionCount}%`, // Ajuste dinámico del tamaño de cada sección
+                }
+              ]}
+            >
+              <AddSectionModal/>
+              <Text style={styles.sectionText}>Disponible {index + 1}</Text>
+            </View>
           ))}
         </View>
       </View>
     );
   };
 
-  const colorListItems = [
-    { name: 'Eagle Area', color: 'lightgray', hours: "5" },
-    { name: 'Holborn Area', color: '#f39c12' , hours: "5"},
-    { name: 'West Eagle Area', color: '#DCDCDC', hours: "5"},
-  ];
   
   const showColorListItems = () => {
     return buildingInformation.sections.map((item, index) => (
@@ -128,17 +126,20 @@ export const Building = () => {
         <Text style={styles.title}>{buildingInformation.address}</Text>
         <Text style={styles.title}>Building total hours {buildingInformation.total_hours}</Text>
         <View style={styles.listItemContainer}>
+          <Text>El edificio esta dividio en {buildingInformation.sections.length} secciones. Cada seccion costa de paleta de colors
+          nombre y horas asignadas. 
+          </Text>
           <AddFloorModal name="addSection" onSectionAdded={handleSectionAdded} />
           {showColorListItems()}
         </View>
         <View style={styles.floorContainer}>
-          <AddFloorModal name="addFloor" totalFloors={totalFloors}  onFloorAdded={handleFloorAdded} />
+          <AddFloorModal name="addFloor" totalFloors={totalFloors} totalSeccions={buildingInformation.sections.length} onFloorAdded={handleFloorAdded} />
+          <Text>El edificion actualmente consta de {buildingInformation.floors.length} plantas</Text>
           {buildingInformation.floors.map(renderFloor)}
         </View>
     </ScrollView>
   );
 };
-
 
 const styles = StyleSheet.create({
   buildingContainer: {
@@ -146,7 +147,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
     padding: 20,
   },
-  title:{
+  title: {
     fontSize: 16,
     marginBottom: 5,
   },
@@ -158,8 +159,8 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 10,
     overflow: 'hidden',
-    elevation: 3, // For Android shadow
-    shadowColor: '#000', // For iOS shadow
+    elevation: 3, 
+    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     paddingHorizontal: 10,
@@ -168,8 +169,7 @@ const styles = StyleSheet.create({
   sectionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between', // Distribute space evenly between items
-    alignItems: 'center', // Center items vertically within the container
+    alignItems: 'center',
   },
   sectionText: {
     color: '#333',
@@ -178,60 +178,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   sectionSquare: {
-    width: '30%', // Adjust width to fit 3 items per row (e.g., 30% for 3 items with some margin)
     height: 60, 
-    marginBottom: 10, // Margin at the bottom of each square
+    marginBottom: 10, 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
   },
-  windowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  windowColumn: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    marginHorizontal: 5,
-    paddingVertical: 5,
-  },
-  window: {
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 5,
-    marginBottom: 10,
-    height: 70,
-  },
-  windowText: {
-    color: '#333',
-    fontSize: 12,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  floorNumber: {
-    textAlign: 'center',
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  listItemContainer:{
+  listItemContainer: {
     borderRadius: 10,
     backgroundColor: "white",
-    padding:15,
+    padding: 15,
     marginBottom: 8,
-    marginTop: 8
+    marginTop: 8,
   },
-  singleItemContainer:{
+  singleItemContainer: {
     alignItems: "center",
     height: 30,
     flexDirection: "row", 
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
-  listItem:{
+  listItem: {
     height: 20,
     width: 20,
-    marginRight: 20
-  }
+    marginRight: 20,
+  },
 });

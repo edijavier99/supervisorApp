@@ -3,11 +3,13 @@ import React, { useState } from "react";
 import { View, TextInput, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Toast from 'react-native-root-toast';
 
-export const AddFloor = ({ onFloorAdded,totalFloor }) => {
+export const AddFloor = ({ onFloorAdded, totalSeccionsAvailable }) => {
   const [floorNumber, setFloorNumber] = useState('');
   const [sectionsCount, setSectionsCount] = useState('');
 
   const handleAddFloor = async () => {
+
+    console.log("nooooo", totalSeccionsAvailable);
     if (!floorNumber || !sectionsCount) {
       Toast.show('Todos los campos son obligatorios.', {
         duration: Toast.durations.SHORT,
@@ -17,6 +19,17 @@ export const AddFloor = ({ onFloorAdded,totalFloor }) => {
       });
       return;
     }
+
+    if (parseInt(sectionsCount, 10) >= totalSeccionsAvailable) {
+      Toast.show(`No puedes añadir más de ${totalSeccionsAvailable} secciones.`, {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+        backgroundColor: 'red',
+        textColor: 'white',
+      });
+      return;
+    }
+
     try {
       const userToken = await AsyncStorage.getItem("userToken");
       const buildingId = await AsyncStorage.getItem("building_id");
@@ -27,9 +40,9 @@ export const AddFloor = ({ onFloorAdded,totalFloor }) => {
           'Authorization': `Token ${userToken}`
         },
         body: JSON.stringify({
-            floor_number: parseInt(floorNumber, 10),
-            section_numbers: parseInt(sectionsCount, 10),
-            building: buildingId
+          floor_number: parseInt(floorNumber, 10),
+          section_numbers: parseInt(sectionsCount, 10),
+          building: buildingId
         }),
       });
 
@@ -48,7 +61,7 @@ export const AddFloor = ({ onFloorAdded,totalFloor }) => {
         setFloorNumber('');
         setSectionsCount('');
       } else {
-        Toast.show('Hubo un problema al añadir el piso.', {
+        Toast.show('No puedes añadir un piso menor del que ya hay.', {
           duration: Toast.durations.SHORT,
           position: Toast.positions.BOTTOM,
           backgroundColor: 'red',
@@ -96,9 +109,7 @@ export const AddFloor = ({ onFloorAdded,totalFloor }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
-
   title: {
     fontSize: 20,
     fontWeight: 'bold',

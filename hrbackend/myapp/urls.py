@@ -4,7 +4,8 @@ from .views import (
     UserListView,
     UserDetailView,
     EmployeeListCreateView,
-    EmployeeDetailView,SupervisorEmployeeListView
+    EmployeeDetailView,SupervisorEmployeeListView,
+    DropdownListView
 )
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -15,6 +16,7 @@ urlpatterns = [
     path('users/', UserListView.as_view(), name='user-list-create'),  # Listar todos los usuarios y crear un nuevo usuario
     path('user/', UserDetailView.as_view(), name='user-detail'),  # Obtener, actualizar o eliminar un usuario específico
     path('supervisor/<int:supervisor_id>/employees/', SupervisorEmployeeListView.as_view(), name='supervisor-employee-list'),
+    path('supervisor/<int:supervisor_id>/employees/filtered/', DropdownListView.as_view(), name='dropdown-employee-list'),
 
     path('api/token/', obtain_auth_token, name='api_token_auth'),
 

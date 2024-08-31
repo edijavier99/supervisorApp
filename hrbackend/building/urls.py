@@ -3,7 +3,8 @@ from django.urls import path
 from .views import (
     BuildingListCreateView, BuildingDetailView,
     FloorListCreateView, FloorDetailView,
-    FloorSectionListCreateView, FloorSectionDetailView
+    FloorSectionListCreateView, FloorSectionDetailView,
+    SingleFloorSectionCreateView, SingleFloorSectionDetailView
 )
 
 urlpatterns = [
@@ -14,8 +15,11 @@ urlpatterns = [
     # Floor URLs
     path('floors/', FloorListCreateView.as_view(), name='floor-list-create'),
     path('floors/<int:pk>/', FloorDetailView.as_view(), name='floor-detail'),
+
+    path('single-floor-section/',SingleFloorSectionCreateView.as_view(), name="single-floor-section-create" ),
+    path('single-floor-section/<int:pk>/',SingleFloorSectionDetailView.as_view(), name="single-floor-section-detail" ),
     
-    # FloorSection URLs
+    # SECTIONS THAT HAVE A BUILDING IN GENERAL PER FLOOR URLs
     path('floor-sections/', FloorSectionListCreateView.as_view(), name='floor-section-list-create'),
     path('floor-sections/<int:pk>/', FloorSectionDetailView.as_view(), name='floor-section-detail'),
 ]

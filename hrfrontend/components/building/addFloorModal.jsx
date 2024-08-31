@@ -4,7 +4,7 @@ import { AddFloor } from "./addFloor";
 import { AddSection } from "./addSection";
 import { Icon } from 'react-native-elements';
 
-export const AddFloorModal = ({ name, onFloorAdded, onSectionAdded, totalFloors }) => {
+export const AddFloorModal = ({ name, onFloorAdded, onSectionAdded, totalFloors, totalSeccions }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleOpenModal = () => {
@@ -17,7 +17,7 @@ export const AddFloorModal = ({ name, onFloorAdded, onSectionAdded, totalFloors 
 
   const renderModalContent = () => {
     if (name === "addFloor") {
-      return <AddFloor totalFloors={totalFloors} onFloorAdded={onFloorAdded} />;
+      return <AddFloor totalFloors={totalFloors} totalSeccionsAvailable={totalSeccions} onFloorAdded={onFloorAdded} />;
     } else if (name === "addSection") {
       return <AddSection onSectionAdded={onSectionAdded} />;
     }
